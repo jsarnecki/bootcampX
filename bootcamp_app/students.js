@@ -11,14 +11,16 @@ pool.connect();
 
 const cohortMonth = process.argv[2];
 const limit = process.argv[3]
-
-pool.query(`
+const values = [`%${cohortMonth}%`, limit];
+const queryString = `
 SELECT students.id, students.name, cohorts.name AS cohort
 FROM students
 JOIN cohorts ON students.cohort_id = cohorts.id
-WHERE cohorts.name LIKE '%${cohortMonth}%'
-LIMIT ${limit};
-`)
+WHERE cohorts.name LIKE $1
+LIMIT $2;
+`;
+
+pool.query(queryString, values)
 .then(res => {
   res.rows.forEach((user) => {
     console.log(`${user.name} has an id of ${user.id}, and was in cohort ${user.cohort}`);
